@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaden & Plantjes Winkel</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4fdf4; color: #333; margin: 0; padding: 20px; }
+        header { text-align: center; color: #2d5a27; }
+        .product-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .product-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; width: 200px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { background-color: #4CAF50; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #45a049; }
+        #cart { margin-top: 30px; padding: 20px; background: #fff; border-top: 5px solid #4CAF50; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🌿 Mijn Plantenwinkel</h1>
+    <p>Verse zaden en gezonde plantjes</p>
+</header>
+
+<div class="product-container">
+    <div class="product-card">
+        <h3>zonnebloem zaden</h3>
+        <p>Prijs: €2.50</p>
+        <button onclick="addToCart('Zonnebloem Zaden', 2.50)">In winkelwagen</button>
+    </div>
+
+    <div class="product-card">
+        <h3>basilicum plant</h3>
+        <p>Prijs: €3.95</p>
+        <button onclick="addToCart('Basilicum Plant', 3.95)">In winkelwagen</button>
+    </div>
+
+    <div class="product-card">
+        <h3>Tomaat Zaden</h3>
+        <p>Prijs: €1.80</p>
+        <button onclick="addToCart('Tomaat Zaden', 1.80)">In winkelwagen</button>
+    </div>
+</div>
+
+<div id="cart">
+    <h2>Uw Winkelwagen</h2>
+    <ul id="cart-items"></ul>
+    <p><strong>Totaal: €<span id="total-price">0.00</span></strong></p>
+    <button onclick="checkout()">Bestelling afronden</button>
+</div>
+
+<script>
+    let total = 0;
+    const cartItems = [];
+
+    function addToCart(name, price) {
+        total += price;
+        cartItems.push(name);
+
+        const list = document.getElementById('cart-items');
+        const entry = document.createElement('li');
+        entry.textContent = `${name} - €${price.toFixed(2)}`;
+        list.appendChild(entry);
+
+        document.getElementById('total-price').textContent = total.toFixed(2);
+    }
+
+    function checkout() {
+        if (cartItems.length === 0) {
+            alert("Je winkelwagen is nog leeg!");
+        } else {
+            alert("Bedankt voor je bestelling! Totaalbedrag: €" + total.toFixed(2));
+            location.reload();
+        }
+    }
+</script>
+
+</body>
+</html>
