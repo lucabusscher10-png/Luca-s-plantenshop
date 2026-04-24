@@ -3,76 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zaden & Plantjes Winkel</title>
+    <title>Luca's Shop</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4fdf4; color: #333; margin: 0; padding: 20px; }
-        header { text-align: center; color: #2d5a27; }
-        .product-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
-        .product-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; width: 200px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        button { background-color: #4CAF50; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        #cart { margin-top: 30px; padding: 20px; background: #fff; border-top: 5px solid #4CAF50; }
+        body { font-family: sans-serif; text-align: center; background: #f4f9f4; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 10px; display: inline-block; width: 220px; vertical-align: top; }
+        .voorraad { font-size: 25px; font-weight: bold; color: #2196F3; }
+        input { width: 85%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; }
+        button { background: #4CAF50; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; }
+        button:disabled { background: #ccc; }
+        #bestel-sectie { margin-top: 20px; background: white; padding: 25px; border-radius: 20px; display: inline-block; width: 90%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>🌿 Mijn Plantenwinkel</h1>
-    <p>Verse zaden en gezonde plantjes</p>
-</header>
+    <h1>🌿 Luca's Planten Shop</h1>
 
-<div class="product-container">
-    <div class="product-card">
-        <h3>zonnebloem zaden</h3>
-        <p>Prijs: €2.50</p>
-        <button onclick="addToCart('Zonnebloem Zaden', 2.50)">In winkelwagen</button>
+    <div class="card">
+        <h3>🌻 Zonnebloem Pitten</h3>
+        <p>Voorraad: <span id="v-zonne" class="voorraad">...</span></p>
+        <button id="b-zonne" onclick="kies('Zonnebloem pitten', 2.50)">Kies deze</button>
     </div>
 
-    <div class="product-card">
-        <h3>basilicum plant</h3>
-        <p>Prijs: €3.95</p>
-        <button onclick="addToCart('Basilicum Plant', 3.95)">In winkelwagen</button>
+    <div class="card">
+        <h3>🎃 Pompoen Pitten</h3>
+        <p>Voorraad: <span id="v-pompoen" class="voorraad">...</span></p>
+        <button id="b-pompoen" onclick="kies('Pompoen Pitten', 1.50)">Kies deze</button>
     </div>
 
-    <div class="product-card">
-        <h3>Tomaat Zaden</h3>
-        <p>Prijs: €1.80</p>
-        <button onclick="addToCart('Tomaat Zaden', 1.80)">In winkelwagen</button>
+    <div id="bestel-sectie">
+        <h3 id="sel" style="color: #666;">Maak een keuze uit ons assortiment 🌿</h3>
+        <input type="text" id="naam" placeholder="Je volledige naam...">
+        <input type="text" id="adres" placeholder="Je adres (Straat + Huisnr)...">
+        <button id="bestel-btn" onclick="stuurMail()" disabled>✅ Bestelling afronden</button>
     </div>
-</div>
 
-<div id="cart">
-    <h2>Uw Winkelwagen</h2>
-    <ul id="cart-items"></ul>
-    <p><strong>Totaal: €<span id="total-price">0.00</span></strong></p>
-    <button onclick="checkout()">Bestelling afronden</button>
-</div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-<script>
-    let total = 0;
-    const cartItems = [];
+    const firebaseConfig = {
+        databaseURL: "https://lucaplanten-e7054-default-rtdb.europe-west1.firebasedatabase.app"
+    };
 
-    function addToCart(name, price) {
-        total += price;
-        cartItems.push(name);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        const list = document.getElementById('cart-items');
-        const entry = document.createElement('li');
-        entry.textContent = `${name} - €${price.toFixed(2)}`;
-        list.appendChild(entry);
+    let gekozenProduct = "";
+    let gekozenPrijs = 0;
 
-        document.getElementById('total-price').textContent = total.toFixed(2);
+    function checkVoorraad(dbNaam, spanId, knopId) {
+        onValue(ref(db, 'voorraad/' + dbNaam), (s) => {
+            const a = s.val();
+            document.getElementById(spanId).innerText = (a !== null) ? a : "0";
+            document.getElementById(knopId).disabled = (a <= 0);
+            if(a <= 0) document.getElementById(spanId).innerText = "OP";
+        });
     }
 
-    function checkout() {
-        if (cartItems.length === 0) {
-            alert("Je winkelwagen is nog leeg!");
-        } else {
-            alert("Bedankt voor je bestelling! Totaalbedrag: €" + total.toFixed(2));
-            location.reload();
-        }
-    }
+    checkVoorraad('Zonnebloem pitten', 'v-zonne', 'b-zonne');
+    checkVoorraad('Pompoen Pitten', 'v-pompoen', 'b-pompoen');
+
+    window.kies = (n, p) => {
+        gekozenProduct = n;
+        gekozenPrijs = p;
+        document.getElementById('sel').innerHTML = "Je hebt gekozen voor:<br><span style='color:#4CAF50; font-size:1.2em;'><b>" + n + "</b></span>";
+        document.getElementById('bestel-btn').disabled = false;
+    };
+
+    window.stuurMail = () => {
+        const n = document.getElementById('naam').value;
+        const a = document.getElementById('adres').value;
+        if(!n || !a) return alert("Vul je naam en adres in!");
+
+        runTransaction(ref(db, 'voorraad/' + gekozenProduct), (h) => {
+            return (h > 0) ? h - 1 : h;
+        }).then(() => {
+            const body = `Hoi Luca,\n\nIk wil graag bestellen: ${gekozenProduct}\n\nNaam: ${n}\nAdres: ${a}`;
+            location.href = `mailto:lucabusscher10@gmail.com?subject=Bestelling van ${n}&body=${encodeURIComponent(body)}`;
+        });
+    };
 </script>
-
 </body>
 </html>
