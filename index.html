@@ -1,87 +1,118 @@
-<!DOCTYPE html>
+s<!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luca's Shop</title>
+    <title>Luca's Plantenshop</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f9f4; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin: 10px; display: inline-block; width: 220px; vertical-align: top; }
-        .voorraad { font-size: 25px; font-weight: bold; color: #2196F3; }
-        input { width: 85%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; }
-        button { background: #4CAF50; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; }
-        button:disabled { background: #ccc; }
-        #bestel-sectie { margin-top: 20px; background: white; padding: 25px; border-radius: 20px; display: inline-block; width: 90%; max-width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f1ea; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        h1 { text-align: center; color: #2e4d32; }
+        .product-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
+        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+        .voorraad { font-weight: bold; color: #1a73e8; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; transition: 0.3s; }
+        button:hover { background-color: #45a049; }
+        button:disabled { background-color: #ccc; }
+        
+        /* Winkelwagen styling */
+        .cart { background: #fff; padding: 20px; border-radius: 15px; margin-top: 30px; border: 2px solid #2e4d32; }
+        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
+        .total { font-weight: bold; font-size: 1.3em; margin-top: 15px; text-align: right; color: #2e4d32; }
+        .mail-btn { background-color: #1a73e8; margin-top: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>🌿 Luca's Planten Shop</h1>
+<div class="container">
+    <h1>🌿 Luca's Plantenshop</h1>
 
-    <div class="card">
-        <h3>🌻 Zonnebloem Pitten</h3>
-        <p>Voorraad: <span id="v-zonne" class="voorraad">...</span></p>
-        <button id="b-zonne" onclick="kies('Zonnebloem pitten', 2.50)">Kies deze</button>
+    <div class="product-card">
+        <img src="https://images.unsplash.com/photo-1597420498462-8b55acad5f3c?w=400" class="product-img" alt="Zonnebloem">
+        <h3>Zonnebloem pitten</h3>
+        <p>Prijs: <b>€1,50</b></p>
+        <p>Voorraad: <span id="v-zonnebloem" class="voorraad">...</span></p>
+        <button id="btn-zonnebloem" onclick="addToCart('Zonnebloem pitten', 1.50)" disabled>Voeg toe</button>
     </div>
 
-    <div class="card">
-        <h3>🎃 Pompoen Pitten</h3>
+    <div class="product-card">
+        <img src="https://images.unsplash.com/photo-1506543730435-e2c1d4553a84?w=400" class="product-img" alt="Pompoen">
+        <h3>Pompoen Pitten</h3>
+        <p>Prijs: <b>€2,00</b></p>
         <p>Voorraad: <span id="v-pompoen" class="voorraad">...</span></p>
-        <button id="b-pompoen" onclick="kies('Pompoen Pitten', 1.50)">Kies deze</button>
+        <button id="btn-pompoen" onclick="addToCart('Pompoen Pitten', 2.00)" disabled>Voeg toe</button>
     </div>
 
-    <div id="bestel-sectie">
-        <h3 id="sel" style="color: #666;">Maak een keuze uit ons assortiment 🌿</h3>
-        <input type="text" id="naam" placeholder="Je volledige naam...">
-        <input type="text" id="adres" placeholder="Je adres (Straat + Huisnr)...">
-        <button id="bestel-btn" onclick="stuurMail()" disabled>✅ Bestelling afronden</button>
+    <div class="cart" id="winkelwagen-sectie" style="display:none;">
+        <h3>🛒 Jouw Winkelwagen</h3>
+        <div id="cart-items"></div>
+        <div class="total">Totaal: €<span id="total-price">0.00</span></div>
+        <button class="mail-btn" onclick="sendEmail()">Bestelling Mailen 📧</button>
     </div>
+</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+<script>
+    // Firebase Setup
+    const firebaseConfig = { databaseURL: "https://lucaplanten-e7054-default-rtdb.europe-west1.firebasedatabase.app" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    const firebaseConfig = {
-        databaseURL: "https://lucaplanten-e7054-default-rtdb.europe-west1.firebasedatabase.app"
-    };
+    let cart = [];
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let gekozenProduct = "";
-    let gekozenPrijs = 0;
-
+    // Voorraad ophalen
     function checkVoorraad(dbNaam, spanId, knopId) {
-        onValue(ref(db, 'voorraad/' + dbNaam), (s) => {
-            const a = s.val();
-            document.getElementById(spanId).innerText = (a !== null) ? a : "0";
-            document.getElementById(knopId).disabled = (a <= 0);
-            if(a <= 0) document.getElementById(spanId).innerText = "OP";
+        db.ref('voorraad/' + dbNaam).on('value', (s) => {
+            const a = s.val() || 0;
+            document.getElementById(spanId).innerText = a;
+            const btn = document.getElementById(knopId);
+            if (a <= 0) { btn.disabled = true; btn.innerText = "OP"; } 
+            else { btn.disabled = false; btn.innerText = "In Winkelwagen"; }
         });
     }
 
-    checkVoorraad('Zonnebloem pitten', 'v-zonne', 'b-zonne');
-    checkVoorraad('Pompoen Pitten', 'v-pompoen', 'b-pompoen');
+    checkVoorraad('Zonnebloem pitten', 'v-zonnebloem', 'btn-zonnebloem');
+    checkVoorraad('Pompoen Pitten', 'v-pompoen', 'btn-pompoen');
 
-    window.kies = (n, p) => {
-        gekozenProduct = n;
-        gekozenPrijs = p;
-        document.getElementById('sel').innerHTML = "Je hebt gekozen voor:<br><span style='color:#4CAF50; font-size:1.2em;'><b>" + n + "</b></span>";
-        document.getElementById('bestel-btn').disabled = false;
-    };
+    // Winkelwagen functies
+    function addToCart(naam, prijs) {
+        cart.push({naam, prijs});
+        updateCartUI();
+    }
 
-    window.stuurMail = () => {
-        const n = document.getElementById('naam').value;
-        const a = document.getElementById('adres').value;
-        if(!n || !a) return alert("Vul je naam en adres in!");
+    function updateCartUI() {
+        const cartDiv = document.getElementById('cart-items');
+        const totalSpan = document.getElementById('total-price');
+        const sectie = document.getElementById('winkelwagen-sectie');
+        
+        sectie.style.display = 'block';
+        cartDiv.innerHTML = '';
+        let totaal = 0;
 
-        runTransaction(ref(db, 'voorraad/' + gekozenProduct), (h) => {
-            return (h > 0) ? h - 1 : h;
-        }).then(() => {
-            const body = `Hoi Luca,\n\nIk wil graag bestellen: ${gekozenProduct}\n\nNaam: ${n}\nAdres: ${a}`;
-            location.href = `mailto:lucabusscher10@gmail.com?subject=Bestelling van ${n}&body=${encodeURIComponent(body)}`;
+        cart.forEach((item) => {
+            cartDiv.innerHTML += `<div class="cart-item"><span>${item.naam}</span><span>€${item.prijs.toFixed(2)}</span></div>`;
+            totaal += item.prijs;
         });
-    };
+
+        totalSpan.innerText = totaal.toFixed(2);
+    }
+
+    function sendEmail() {
+        const emailAdres = "lucabusscher10@gmail.com"; // <--- VERANDER DIT NAAR JOUW EMAIL!
+        let onderwerp = "Nieuwe bestelling bij Luca's Plantenshop";
+        let inhoud = "Hallo Luca,%0A%0AIk wil graag het volgende bestellen:%0A%0A";
+        
+        cart.forEach(item => {
+            inhoud += "- " + item.naam + " (€" + item.prijs.toFixed(2) + ")%0A";
+        });
+        
+        inhoud += "%0ATotaalbedrag: €" + document.getElementById('total-price').innerText;
+        inhoud += "%0A%0AGroetjes!";
+
+        window.location.href = "mailto:" + emailAdres + "?subject=" + onderwerp + "&body=" + inhoud;
+    }
 </script>
+
 </body>
 </html>
