@@ -9,17 +9,16 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f1ea; color: #333; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        h1 { text-align: center; color: #2e4d32; }
-        .product-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: center; }
-        .product-img { width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 10px; }
+        h1 { text-align: center; color: #2e4d32; margin-bottom: 30px; }
+        .product-card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 25px; box-shadow: 0 8px 16px rgba(0,0,0,0.05); text-align: center; }
+        .product-img { width: 100%; height: 250px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; background-color: #eee; }
         .voorraad { font-weight: bold; color: #1a73e8; }
-        button { background-color: #4CAF50; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; }
-        button:disabled { background-color: #ccc; }
-        
-        .cart { background: #fff; padding: 20px; border-radius: 15px; margin-top: 30px; border: 2px solid #2e4d32; }
-        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
-        .total { font-weight: bold; font-size: 1.3em; margin-top: 15px; text-align: right; color: #2e4d32; }
-        .mail-btn { background-color: #1a73e8; margin-top: 15px; font-weight: bold; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 15px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:disabled { background-color: #d3ccbc; color: #777; cursor: not-allowed; }
+        .cart { background: #fff; padding: 20px; border-radius: 20px; margin-top: 30px; border: 2px solid #2e4d32; }
+        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .total { font-weight: bold; font-size: 1.4em; margin-top: 15px; text-align: right; color: #2e4d32; }
+        .mail-btn { background-color: #1a73e8; margin-top: 20px; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -28,7 +27,7 @@
     <h1>🌿 Luca's Plantenshop</h1>
 
     <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1470004914212-05527e49370b?w=500" class="product-img" alt="Zonnebloem">
+        <img src="https://images.unsplash.com/photo-1470004914212-05527e49370b?w=800" class="product-img" alt="Zonnebloem">
         <h3>Zonnebloem pitten</h3>
         <p>Prijs: <b>€1,50</b></p>
         <p>Voorraad: <span id="v-zonnebloem" class="voorraad">...</span></p>
@@ -36,14 +35,14 @@
     </div>
 
     <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1506543730435-e2c1d4553a84?w=500" class="product-img" alt="Pompoen">
+        <img src="https://images.unsplash.com/photo-1506543730435-e2c1d4553a84?w=800" class="product-img" alt="Pompoen">
         <h3>Pompoen Pitten</h3>
         <p>Prijs: <b>€2,00</b></p>
         <p>Voorraad: <span id="v-pompoen" class="voorraad">...</span></p>
         <button id="btn-pompoen" onclick="addToCart('Pompoen Pitten', 2.00)" disabled>In winkelwagen</button>
     </div>
 
-    <div class="cart" id="winkelwagen-sectie" style="display:none;">
+    <div id="winkelwagen-sectie" class="cart" style="display:none;">
         <h3>🛒 Jouw Winkelwagen</h3>
         <div id="cart-items"></div>
         <div class="total">Totaal: €<span id="total-price">0.00</span></div>
@@ -55,7 +54,6 @@
     const firebaseConfig = { databaseURL: "https://lucaplanten-e7054-default-rtdb.europe-west1.firebasedatabase.app" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     let cart = [];
 
     function checkVoorraad(dbNaam, spanId, knopId) {
@@ -99,6 +97,5 @@
         window.location.href = "mailto:" + emailAdres + "?subject=" + onderwerp + "&body=" + inhoud;
     }
 </script>
-
 </body>
 </html>
