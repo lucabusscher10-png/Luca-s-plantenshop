@@ -1,4 +1,4 @@
-s<!DOCTYPE html>
+DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -21,33 +21,7 @@ s<!DOCTYPE html>
         .cart { background: #fff; padding: 20px; border-radius: 15px; margin-top: 30px; border: 2px solid #2e4d32; }
         .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 8px 0; }
         .total { font-weight: bold; font-size: 1.3em; margin-top: 15px; text-align: right; color: #2e4d32; }
-        .mail-btn { background-color: #1a73e8; margin-top: 15px; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <h1>🌿 Luca's Plantenshop</h1>
-
-    <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1597420498462-8b55acad5f3c?w=500
-
-
-        <p>Prijs: <b>€1,50</b></p>
-        <p>Voorraad: <span id="v-zonnebloem" class="voorraad">...</span></p>
-        <button id="btn-zonnebloem" onclick="addToCart('Zonnebloem pitten', 1.50)" disabled>Voeg toe</button>
-    </div>
-
-    <div class="product-card">
-        <img src="https://images.unsplash.com/photo-1506543730435-e2c1d4553a84?w=400" class="product-img" alt="Pompoen">
-        <h3>Pompoen Pitten</h3>
-        <p>Prijs: <b>€2,00</b></p>
-        <p>Voorraad: <span id="v-pompoen" class="voorraad">...</span></p>
-        <button id="btn-pompoen" onclick="addToCart('Pompoen Pitten', 2.00)" disabled>Voeg toe</button>
-    </div>
-
-    <div class="cart" id="winkelwagen-sectie" style="display:none;">
-        <h3>🛒 Jouw Winkelwagen</h3>
+        .mail-btn { background-color: #1a73e8; margin-top: 15px; font-weight: bold Jouw Winkelwagen</h3>
         <div id="cart-items"></div>
         <div class="total">Totaal: €<span id="total-price">0.00</span></div>
         <button class="mail-btn" onclick="sendEmail()">Bestelling Mailen 📧</button>
@@ -108,12 +82,3 @@ s<!DOCTYPE html>
             inhoud += "- " + item.naam + " (€" + item.prijs.toFixed(2) + ")%0A";
         });
         
-        inhoud += "%0ATotaalbedrag: €" + document.getElementById('total-price').innerText;
-        inhoud += "%0A%0AGroetjes!";
-
-        window.location.href = "mailto:" + emailAdres + "?subject=" + onderwerp + "&body=" + inhoud;
-    }
-</script>
-
-</body>
-</html>
